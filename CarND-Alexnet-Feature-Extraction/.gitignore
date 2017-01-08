@@ -4,3 +4,4 @@ bvlc-alexnet.npy
 train.p
 .vscode
 *.pyc
+*_solution*
