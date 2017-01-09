@@ -109,13 +109,13 @@ def main():
         # TODO: write more concisely if possible
         for epoch_i in range(epochs):
             print('Epoch {}'.format(epoch_i + 1))
-            X_train, y_train_one_hot = shuffle(X_train, y_train)
+            X_train, y_train = shuffle(X_train, y_train)
             t0 = time.time()
 
             for start_i in range(0, nb_samples, batch_size):
                 end_i = start_i + batch_size
                 X_batch = X_train[start_i:end_i]
-                y_batch = y_train_one_hot[start_i:end_i]
+                y_batch = y_train[start_i:end_i]
                 sess.run(train_op, feed_dict={features: X_batch, labels: y_batch})
 
             val_loss, val_acc = evaluate(sess, X_val, y_val)
