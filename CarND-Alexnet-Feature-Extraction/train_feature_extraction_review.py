@@ -1,4 +1,16 @@
 """Reviewing the exercise of training feature extraction without referring to the former codes."""
+# TODO: Debug: something wrong with this code. 
+"""
+Epoch 1
+Time 0.000 seconds
+Validation Loss =  1.36649746221
+Validation Accuracy =  0.0
+Epoch 2
+Time 1.000 seconds
+Validation Loss =  1.25157775996
+Validation Accuracy =  0.0
+Epoch 3
+"""
 import pickle
 import time
 
