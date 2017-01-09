@@ -72,7 +72,8 @@ def main():
     preds = tf.argmax(logits, axis=1)
     trues = tf.argmax(labels_one_hot, axis=1)
     acc_op = tf.reduce_mean(tf.cast(tf.equal(preds, trues), tf.float32))
-    loss_op = tf.nn.softmax_cross_entropy_with_logits(logits, labels_one_hot)
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, labels_one_hot)
+    loss_op = tf.reduce_mean(cross_entropy)
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     train_op = optimizer.minimize(loss_op, var_list=[fc8W, fc8b])
 
@@ -85,7 +86,7 @@ def main():
     train_test_split(X, y, test_size=0.25, random_state=0)
 
     def evaluate(sess, X_eval, y_eval):
-        nb_samples = len(X)
+        nb_samples = X_eval.shape[0]
         total_loss = 0
         total_acc = 0
 
