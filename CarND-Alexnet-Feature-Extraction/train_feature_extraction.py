@@ -74,8 +74,8 @@ def evaluate(X_data, y_data):
     sess = tf.get_default_session()
 
     for offset in range(0, num_examples, batch_size):
-        X_batch = X_train[offset: offset + batch_size]
-        y_batch = y_train[offset: offset + batch_size]
+        X_batch = X_data[offset: offset + batch_size]
+        y_batch = y_data[offset: offset + batch_size]
         loss, accuracy = \
             sess.run([loss_operation, accuracy_operation],
                      feed_dict={x: X_batch, y: y_batch})
