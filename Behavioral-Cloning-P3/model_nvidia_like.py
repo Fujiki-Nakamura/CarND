@@ -15,9 +15,9 @@ def get_model():
 
     model = Sequential()
     # Cropping layer
-    model.add(Cropping2D(cropping=((50, 20), (0, 0)), input_shape=input_shape)
+    model.add(Cropping2D(cropping=((50, 20), (0, 0)), input_shape=input_shape))
     # Normalizing layer
-    model.add(Lambda(lambda x: x / 255 - 0.5)
+    model.add(Lambda(lambda x: x / 255 - 0.5))
 
     model.add(
         Convolution2D(
