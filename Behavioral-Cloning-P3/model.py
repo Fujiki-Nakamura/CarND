@@ -43,7 +43,6 @@ def main():
     print('Loading time = {} seconds'.format(time.time() - t0))
     X_train, X_test, y_train, y_test = \
         train_test_split(X, y, test_size=0.25, random_state=0)
-    import pdb; pdb.set_trace()
 
     # Train the model
     batch_size = 128
