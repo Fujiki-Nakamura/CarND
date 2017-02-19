@@ -23,7 +23,6 @@ def get_model():
         Convolution2D(
             24, 5, 5,
             border_mode='valid', subsample=(2, 2),
-            # W_regularizer=l2(0.001),
             activation='relu'
             )
         )
@@ -33,7 +32,6 @@ def get_model():
             36, 5, 5,
             border_mode='valid',
             subsample=(2, 2),
-            # W_regularizer=l2(0.001),
             activation='relu'
             )
         )
@@ -43,7 +41,6 @@ def get_model():
             48, 5, 5,
             border_mode='valid',
             subsample=(2, 2),
-            # W_regularizer=l2(0.001),
             activation='relu'
             )
         )
@@ -53,7 +50,6 @@ def get_model():
             64, 3, 3,
             border_mode='valid',
             subsample=(2, 2),
-            # W_regularizer = l2(0.001)
             activation='relu'
             )
         )
@@ -63,7 +59,6 @@ def get_model():
             64, 3, 3,
             border_mode='valid',
             subsample=(2, 2),
-            # W_regularizer=l2(0.001)
             activation='relu'
             )
         )
