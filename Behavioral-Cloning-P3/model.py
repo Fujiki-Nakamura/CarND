@@ -59,13 +59,6 @@ def generator(df_drive_log, batch_size=128):
             yield sklearn.utils.shuffle(X, y)
 
 
-def flip(image):
-    """horizontal flip the image"""
-    image_flipped = cv2.flip(image, 1)
-    angle_flipped = -1 * angle
-    return image_flipped, angle_flipped
-
-
 def main():
     batch_size = 128
 
