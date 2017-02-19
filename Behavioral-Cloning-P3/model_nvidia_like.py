@@ -1,3 +1,6 @@
+""" Define a Neural Network model like NVIDIA model.
+    The original model is described in https://arxiv.org/pdf/1604.07316v1.pdf
+"""
 from keras.layers import Convolution2D
 from keras.layers import Cropping2D
 from keras.layers import Dense
