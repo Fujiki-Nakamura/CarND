@@ -7,8 +7,7 @@ import cv2
 import numpy as np
 
 
-def camera_calibration():
-    dist_pickle_file = './camera_cal/dist_pickle_file.pkl'
+def camera_calibration(dist_pickle_file):
     if os.path.exists(dist_pickle_file):
         # if we have a camera matrix and dist coeffs, we use them.
         with open(dist_pickle_file, 'rb') as f:
@@ -38,9 +37,9 @@ def camera_calibration():
                 imgpoints.append(corners)
 
                 # Draw and display the corners
-                img = cv2.drawChessboardCorners(img, (col, row), corners, ret)
-                cv2.imshow('img',img)
-                cv2.waitKey(500)
+                # img = cv2.drawChessboardCorners(img, (col, row), corners, ret)
+                # cv2.imshow('img',img)
+                # cv2.waitKey(500)
         cv2.destroyAllWindows()
 
         assert len(objpoints) == len(imgpoints)
@@ -61,7 +60,7 @@ def camera_calibration():
 
 if __name__ == '__main__':
     # get the camera matrix and the dist coeffs
-    mtx, dist = camera_calibration()
+    mtx, dist = camera_calibration('./camera_cal/dist_pickle_file.pkl')
 
     test_image = './camera_cal/calibration3.jpg'
     img = cv2.imread(test_image)
