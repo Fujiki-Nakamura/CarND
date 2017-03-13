@@ -85,6 +85,7 @@ According to [this page](http://www.intmath.com/applications-differentiation/8-r
 
 ### Output
 I combined all the steps above and got images like below.
+
 ![alt text][output]
 
 ### Pipeline (video)
