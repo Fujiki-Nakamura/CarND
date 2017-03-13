@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 
-def pipeline(img):
+
+def process(img):
     img_size = img.shape[1::-1]
     # source points
     src = np.float32(
@@ -22,7 +23,7 @@ def pipeline(img):
     M = cv2.getPerspectiveTransform(src, dst)
     img_warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
 
-    return img_warped
+    return img_warped, src, dst
 
 
 if __name__ == '__main__':

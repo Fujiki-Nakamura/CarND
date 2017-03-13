@@ -5,7 +5,7 @@ import matplotlib.image as mpimg
 import numpy as np
 
 
-def pipeline(img, s_thresh=(170, 255), sx_thresh=(20, 100)):
+def process(img, s_thresh=(170, 255), sx_thresh=(20, 100)):
     img = np.copy(img)
     # Convert to HSV color space and separate the V channel
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
