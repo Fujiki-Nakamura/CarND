@@ -83,6 +83,9 @@ The codes for this step are in `pipeline.py`.
 According to [this page](http://www.intmath.com/applications-differentiation/8-radius-curvature.php), I calculated the radius of curvature converting the coordinates in pixel space to the coordinated in real world space.
 <br>This step was done in the `# Curvature` section in `scripts/pipeline.py`.
 
+I also measured the position of the vehicle. Assuming the camera is mounted at the center of the car, I defined the position as the deviation of the center of the image from the midpoint of the lane.
+<br>This step was done in the `# How left from the center of the lines` section in `scripts/pipeline.py`.
+
 ### Output
 I combined all the steps above and got images like below.
 
@@ -90,3 +93,5 @@ I combined all the steps above and got images like below.
 
 ### Pipeline (video)
 Here's a [link to my video result](./project_video_output.mp4)
+
+### Discussion
