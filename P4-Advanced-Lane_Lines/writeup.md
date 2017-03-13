@@ -95,3 +95,5 @@ I combined all the steps above and got images like below.
 Here's a [link to my video result](./project_video_output.mp4)
 
 ### Discussion
+- In lane detection, I could have tried some techniques making the most of the lane detected previously. I didn't have to find the starting points of window searching for each frame from scrach.
+- In my output video, the detected lane area is sometimes wobbly. I might be able to smoothen the output by some kind of averaging method.
