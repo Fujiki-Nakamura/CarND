@@ -47,6 +47,7 @@ def find_cars(
     orientations=9, pixels_per_cell=(8, 8), cells_per_block=(2, 2)):
 
     bbox_list = []
+    resize_to = (64, 64)
 
     assert pixels_per_cell[0] == pixels_per_cell[1]
     pix_per_cell = pixels_per_cell[0]
@@ -92,9 +93,12 @@ def find_cars(
             hog2_feat = hog2[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
             hog3_feat = hog3[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
             hog_features = np.hstack((hog1_feat, hog2_feat, hog3_feat)).reshape(1, -1)
-
+            # Extract image features
+            sub_img = cv2.resize(img_to_search[y_top:y_top + window, x_left:x_left + window], resize_to)
+            image_features = sub_img.ravel().reshape(1, -1)
             # Scale features
-            X_test = X_scaler.transform(hog_features)
+            test_features = np.hstack((hog_features, image_features)).reshape(1, -1)
+            X_test = X_scaler.transform(test_features)
             # Predict
             y_pred_test = classifier.predict(X_test)
 
