@@ -60,8 +60,7 @@ def find_cars(
 
     channel_list = []
     for i in [0, 1, 2]:
-        channel_list.append(img_to_search[:, :, i])
-        # channel_list.append(img_to_search_ycrcb[:, :, i])
+        channel_list.append(img_to_search_ycrcb[:, :, i])
     # Compute individual channel HOG features
     hog_ch_list = []
     for channel in channel_list:
