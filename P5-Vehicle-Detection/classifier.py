@@ -75,6 +75,7 @@ def main():
         print('Fold {} = {} seconds'.format(i + 1, time.time() - t0_fold))
 
     print(df_cv_linear_svc)
+    df_cv_linear_svc.to_csv(os.path.join(save_to, 'cv_result.csv'), index=False)
 
     # Train for test
     clf = LinearSVC()
