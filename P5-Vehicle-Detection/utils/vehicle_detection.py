@@ -53,22 +53,30 @@ def find_cars(
     pix_per_cell = pixels_per_cell[0]
 
     img_to_search = img[y_start:y_stop, :, :]
+    img_to_search_ycrcb = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2YCR_CB)
+    img_to_search_hls = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HLS)
 
-    ch1, ch2, ch3 = \
-        img_to_search[:, :, 0], img_to_search[:, :, 1], img_to_search[:, :, 2]
-    # Compute individual channel HOG features for the entire image
-    hog1 = \
-        hog(
-            ch1, orientations, pixels_per_cell, cells_per_block,
-            transform_sqrt=True, visualise=False, feature_vector=False)
-    hog2 = \
-        hog(
-            ch2, orientations, pixels_per_cell, cells_per_block,
-            transform_sqrt=True, visualise=False, feature_vector=False)
-    hog3 = \
-        hog(
-            ch3, orientations, pixels_per_cell, cells_per_block,
-            transform_sqrt=True, visualise=False, feature_vector=False)
+    ch_y = img_to_search_ycrcb[:, :, 0]
+    ch_cr = img_to_search_ycrcb[:, :, 1]
+    ch_cb = img_to_search_ycrcb[:, :, 2]
+    ch_l = img_to_search_hls[:, :, 1]
+    ch_s = img_to_search_hls[:, :, 2]
+    # Compute individual channel HOG features
+    hog_y = hog(
+        ch_y, orientations, pixels_per_cell, cells_per_block,
+        transform_sqrt=True, visualise=False, feature_vector=False)
+    hog_cr = hog(
+        ch_cr, orientations, pixels_per_cell, cells_per_block,
+        transform_sqrt=True, visualise=False, feature_vector=False)
+    hog_cb = hog(
+        ch_cb, orientations, pixels_per_cell, cells_per_block,
+        transform_sqrt=True, visualise=False, feature_vector=False)
+    hog_l = hog(
+        ch_l, orientations, pixels_per_cell, cells_per_block,
+        transform_sqrt=True, visualise=False, feature_vector=False)
+    hog_s = hog(
+        ch_s, orientations, pixels_per_cell, cells_per_block,
+        transform_sqrt=True, visualise=False, feature_vector=False)
 
     # Define blocks and steps as above
     n_x_blocks = (img_to_search.shape[1] // pix_per_cell) - 1
@@ -89,15 +97,19 @@ def find_cars(
             y_top = y_pos * pix_per_cell
 
             # Extract HOG
-            hog1_feat = hog1[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
-            hog2_feat = hog2[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
-            hog3_feat = hog3[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
-            hog_features = np.hstack((hog1_feat, hog2_feat, hog3_feat)).reshape(1, -1)
-            # Extract image features
-            sub_img = cv2.resize(img_to_search[y_top:y_top + window, x_left:x_left + window], resize_to)
-            image_features = sub_img.ravel().reshape(1, -1)
+            hog_y_feat = hog_y[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
+            hog_cr_feat = hog_cr[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
+            hog_cb_feat = hog_cb[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
+            hog_l_feat = hog_l[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
+            hog_s_feat = hog_s[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel()
+            hog_features = np.hstack((
+                hog_y_feat,
+                hog_cr_feat,
+                hog_cb_feat,
+                hog_l_feat,
+                hog_s_feat)).reshape(1, -1)
             # Scale features
-            test_features = np.hstack((hog_features, image_features)).reshape(1, -1)
+            test_features = np.hstack((hog_features)).reshape(1, -1)
             X_test = X_scaler.transform(test_features)
             # Predict
             y_pred_test = classifier.predict(X_test)
