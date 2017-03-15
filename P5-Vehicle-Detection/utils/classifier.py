@@ -8,7 +8,25 @@ import numpy as np
 from skimage.feature import hog
 
 
+def get_color_hist_features(img, channels=[0, 1, 2], n_bins=32):
+    color_hist_features_list = []
+    for channel in channels:
+        color_hist_features_list.append(np.histogram(img[:, :, channel], bins=n_bins)[0])
+
+    return np.concatenate(color_hist_features_list)
+
+
 def get_hog_features(img, hog_channels=[0, 1, 2], orientations=9, pixels_per_cell=(8, 8), cells_per_block=(2, 2)):
+    if hog_channels is None:
+        return hog(
+                img,
+                orientations=orientations,
+                pixels_per_cell=pixels_per_cell,
+                cells_per_block=cells_per_block,
+                transform_sqrt=True,
+                visualise=False,
+                feature_vector=True)
+
     hog_features = []
     for channel in hog_channels:
         hog_feature = \

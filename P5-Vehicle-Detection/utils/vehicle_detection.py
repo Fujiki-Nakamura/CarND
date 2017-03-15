@@ -7,6 +7,8 @@ import numpy as np
 
 from skimage.feature import hog
 
+from .classifier import get_color_hist_features
+
 
 def draw_boxes(img, bbox_list):
     img_drawn = np.copy(img)
@@ -47,18 +49,19 @@ def find_cars(
     orientations=9, pixels_per_cell=(8, 8), cells_per_block=(2, 2)):
 
     bbox_list = []
-    resize_to = (32, 32)
+    resize_to = (64, 64)
 
     assert pixels_per_cell[0] == pixels_per_cell[1]
     pix_per_cell = pixels_per_cell[0]
 
     img_to_search = img[y_start:y_stop, :, :]
     img_to_search_ycrcb = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2YCR_CB)
-    subimg = img_to_search
+    subimg = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HLS)
 
     channel_list = []
     for i in [0, 1, 2]:
-        channel_list.append(img_to_search_ycrcb[:, :, i])
+        channel_list.append(img_to_search[:, :, i])
+        # channel_list.append(img_to_search_ycrcb[:, :, i])
     # Compute individual channel HOG features
     hog_ch_list = []
     for channel in channel_list:
@@ -90,12 +93,16 @@ def find_cars(
             for hog_ch in hog_ch_list:
                 hog_features_list.append(hog_ch[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel())
             hog_features = np.hstack(hog_features_list).reshape(1, -1)
-            # Extract image features
+
             patch = subimg[y_top:y_top + window, x_left:x_left + window]
             patch_resized = cv2.resize(patch, resize_to)
-            img_features = patch_resized.ravel().reshape(1, -1)
+            # Extract image features
+            # img_features = patch_resized.ravel().reshape(1, -1)
+            # Extract color hist features
+            color_hist_features = get_color_hist_features(patch_resized, channels=[0, 1, 2]).reshape(1, -1)
             # Scale features
-            test_features = np.hstack((hog_features, img_features)).reshape(1, -1)
+            # test_features = np.array(hog_features)
+            test_features = np.hstack((hog_features, color_hist_features)).reshape(1, -1)
             X_test = X_scaler.transform(test_features)
             # Predict
             y_pred_test = classifier.predict(X_test)
