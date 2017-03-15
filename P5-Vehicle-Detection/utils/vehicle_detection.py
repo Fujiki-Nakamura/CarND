@@ -56,7 +56,7 @@ def find_cars(
 
     img_to_search = img[y_start:y_stop, :, :]
     img_to_search_ycrcb = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2YCR_CB)
-    subimg = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HLS)
+    subimg = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HSV)
 
     channel_list = []
     for i in [0, 1, 2]:
