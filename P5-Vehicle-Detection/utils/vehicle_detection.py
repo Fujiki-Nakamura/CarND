@@ -47,16 +47,17 @@ def find_cars(
     orientations=9, pixels_per_cell=(8, 8), cells_per_block=(2, 2)):
 
     bbox_list = []
-    resize_to = (64, 64)
+    resize_to = (32, 32)
 
     assert pixels_per_cell[0] == pixels_per_cell[1]
     pix_per_cell = pixels_per_cell[0]
 
     img_to_search = img[y_start:y_stop, :, :]
     img_to_search_ycrcb = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2YCR_CB)
+    img_to_search_hls = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HLS)
 
     channel_list = []
-    for i in range(3):
+    for i in [0, 1, 2]:
         channel_list.append(img_to_search_ycrcb[:, :, i])
     # Compute individual channel HOG features
     hog_ch_list = []
@@ -89,8 +90,11 @@ def find_cars(
             for hog_ch in hog_ch_list:
                 hog_features_list.append(hog_ch[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel())
             hog_features = np.hstack(hog_features_list).reshape(1, -1)
+            # Extract image features
+            subimg = cv2.resize(img_to_search_hls[y_top:y_top + window, x_left:x_left + window], resize_to)
+            img_features = subimg.ravel().reshape(1, -1)
             # Scale features
-            test_features = hog_features
+            test_features = np.hstack((hog_features, img_features)).reshape(1, -1)
             X_test = X_scaler.transform(test_features)
             # Predict
             y_pred_test = classifier.predict(X_test)
