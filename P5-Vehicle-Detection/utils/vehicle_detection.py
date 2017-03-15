@@ -54,7 +54,7 @@ def find_cars(
 
     img_to_search = img[y_start:y_stop, :, :]
     img_to_search_ycrcb = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2YCR_CB)
-    img_to_search_hls = cv2.cvtColor(img_to_search, cv2.COLOR_RGB2HLS)
+    subimg = img_to_search
 
     channel_list = []
     for i in [0, 1, 2]:
@@ -91,8 +91,9 @@ def find_cars(
                 hog_features_list.append(hog_ch[y_pos:y_pos + n_blocks_per_window, x_pos:x_pos + n_blocks_per_window].ravel())
             hog_features = np.hstack(hog_features_list).reshape(1, -1)
             # Extract image features
-            subimg = cv2.resize(img_to_search_hls[y_top:y_top + window, x_left:x_left + window], resize_to)
-            img_features = subimg.ravel().reshape(1, -1)
+            patch = subimg[y_top:y_top + window, x_left:x_left + window]
+            patch_resized = cv2.resize(patch, resize_to)
+            img_features = patch_resized.ravel().reshape(1, -1)
             # Scale features
             test_features = np.hstack((hog_features, img_features)).reshape(1, -1)
             X_test = X_scaler.transform(test_features)
