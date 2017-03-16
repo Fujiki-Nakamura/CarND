@@ -96,12 +96,12 @@ def find_cars(
             patch = subimg[y_top:y_top + window, x_left:x_left + window]
             patch_resized = cv2.resize(patch, resize_to)
             # Extract image features
-            # img_features = patch_resized.ravel().reshape(1, -1)
+            img_features = cv2.resize(patch, (32, 32)).ravel().reshape(1, -1)
             # Extract color hist features
             color_hist_features = get_color_hist_features(patch_resized, channels=[0, 1, 2]).reshape(1, -1)
             # Scale features
             # test_features = np.array(hog_features)
-            test_features = np.hstack((hog_features, color_hist_features)).reshape(1, -1)
+            test_features = np.hstack((hog_features, color_hist_features, img_features)).reshape(1, -1)
             X_test = X_scaler.transform(test_features)
             # Predict
             y_pred_test = classifier.predict(X_test)

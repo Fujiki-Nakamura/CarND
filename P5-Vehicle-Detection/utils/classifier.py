@@ -8,6 +8,10 @@ import numpy as np
 from skimage.feature import hog
 
 
+def get_image_features(img, resize_to=(32, 32)):
+    return cv2.resize(img, resize_to).ravel()
+
+
 def get_color_hist_features(img, channels=[0, 1, 2], n_bins=32):
     color_hist_features_list = []
     for channel in channels:
