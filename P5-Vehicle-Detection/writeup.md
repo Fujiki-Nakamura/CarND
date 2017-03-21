@@ -30,9 +30,11 @@ I then explored different color spaces and different `skimage.hog()` parameters 
 HOG image xamples using the `YCrCb` color space and HOG parameters of `orientations=9`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)` are following:
 
 - Vehcile
+
 ![alt text][image2_1]
 
 - Non Vehicle
+
 ![alt text][image2_2]
 
 Finally, I settled on the HOG parameters of `orientations=9`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`. With other 2 parameters fixed (i.e. `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`), I tried several `orientations`. Increasing `orientations` increased the time of training the model while not improving the accuracy of the model so much. So, I finally chose `orientaions=9`.
