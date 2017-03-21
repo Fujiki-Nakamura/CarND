@@ -1,13 +1,5 @@
 # coding: UTF-8
-import glob
-import os
-
-import cv2
 import numpy as np
-
-from skimage.feature import hog
-
-from .classifier import get_color_hist_features
 
 
 def get_thresholded_heatmap(heatmap, bbox_list, threshold=1):
