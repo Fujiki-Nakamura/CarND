@@ -1,98 +1,95 @@
-from keras.layers import Dense, Activation
+import gc
+import time
 
-from keras.layers import Convolution2D
-from keras.layer import Dropout
-from keras.layer import GlobalAveragePooling2D
-from keras.layers import Input
-from keras.layers import Lambda
-from keras.layers import MaxPooling2D
-from keras.layers import merge
+import cv2
 
+import numpy as np
+import pandas as pd
+import sklearn
+from sklearn.model_selection import train_test_split
 
-def fire_module(previous_layer, fire_id, squeeze_unit=16, expand_unit=64):
-    fire_squeeze = \
-        Convolution2D(
-            16, 1, 1,
-            init='glorot_uniform',
-            activation='relu',
-            border_mode='same',
-            name='fire{}_squeeze'.format(fire_id)
-        )(previous_layer)
+import keras.backend as K
+from keras.callbacks import EarlyStopping
 
-    fire_expand1 = \
-        Convolution2D(
-            64, 1, 1,
-            init='glorot_uniform',
-            activation='relu',
-            border_mode='same',
-            name='fire{}_expand1'
-        )(fire_squeeze)
-
-    fire_expand2 = \
-        Convolution2D(
-            64, 3, 3,
-            init='glorot_uniform',
-            activation='relu',
-            border_mode='same',
-            name='fire{}_expand2'
-        )(fire_squeeze)
-
-    merge = \
-        merge(
-            [fire_expand1, fire_expand2],
-            mode='concat',
-            concat_axis=3,
-            name='fire{}_merge'.format(fire_id)
-        )
-
-    return merge
+import model_nvidia_like
 
 
-def get_model():
-    input_shape = (3, 256, 256)
+# path to the data directory
+data_dir = './data/'
+# Load the driving log data
+df_drive_log = pd.read_csv(data_dir + 'driving_log.csv')
 
-    input_img = Input(shape=input_shape)
 
-    normalized_input_img = \
-        Lambda(lambda x: x / 127.5 - 1, input_shape=input_shape)(input_img)
+def generator(df_drive_log, batch_size=128):
+    nb_samples = df_drive_log.shape[0]
+    while True:
+        sklearn.utils.shuffle(df_drive_log)
 
-    conv1 = \
-        Convolution2D(
-            96, 7, 7,
-            init='glorot_uniform',
-            activation='relu',
-            border_mode='same',
-            subsample=(2, 2),
-            name='conv1')(normalized_input_img)
-    maxpool1 = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='maxpool1')(conv1)
+        for offset in range(0, nb_samples, batch_size):
+            df_drive_log_batches = df_drive_log[offset:offset + batch_size]
 
-    fire_module2 = fire_module(conv1, fire_id=2, squeeze_unit=16, expand_unit=64)
-    fire_module3 = fire_module(fire_module2, fire_id=3, squeeze_unit=16, expand_unit=64)
-    fire_module4 = fire_module(fire_module3, fire_id=4, squeeze_unit=32, expand_unit=128)
-    maxpool4 = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='maxpool2')(fire_module4)
+            images = []
+            steerings = []
 
-    fire_module5 = fire_module(maxpool4, squeeze_unit=32, expand_unit=128)
-    fire_module6 = fire_module(fire_module5, squeeze_unit=48, expand_unit=192)
-    fire_module7 = fire_module(fire_module6, squeeze_unit=48, expand_unit=192)
-    fire_module8 = fire_module(fire_module7, squeeze_unit=64, expand_unit=256)
-    maxpool8 = MaxPooling(pool_size=(3, 3), strides=(2, 2), name='maxpool8')(fire_module8)
+            for index, row in df_drive_log_batches.iterrows():
+                correction = 0.2
+                # center image
+                img_file_center = data_dir + row['center'].strip()
+                img_center = cv2.imread(img_file_center)
+                img_center = cv2.cvtColor(img_center, cv2.COLOR_BGR2RGB)
+                # left image
+                img_file_left = data_dir + row['left'].strip()
+                img_left = cv2.imread(img_file_left)
+                img_left = cv2.cvtColor(img_left, cv2.COLOR_BGR2RGB)
+                # right image
+                img_file_right = data_dir + row['right'].strip()
+                img_right = cv2.imread(img_file_right)
+                img_right = cv2.cvtColor(img_right, cv2.COLOR_BGR2RGB)
+                # steering
+                steering_center = row['steering']
+                steering_left = steering_center + correction
+                steering_right = steering_center - correction
 
-    fire_module9 = fire_module(maxpool8, squeeze_unit=64, expand_unit=256)
-    dropout9 = Dropout(0.5, name='dropout9')(fire_module9)
+                images.extend([img_center, img_left, img_right])
+                steerings.extend([steering_center, steering_left, steering_right])
 
-    # conv10 = \
-    #     Convolution2D(
-    #         1000, 1, 1,
-    #         init='glorot_uniform',
-    #         border_mode='valid',
-    #         subsample=(2, 2),
-    #         name='conv10'
-    #     )(dropout9)
+            X = np.array(images)
+            y = np.array(steerings)
 
-    global_avgpool9 = GlobalAveragePooling2D()(dropout9)
-    output = Dense(1, name='output')(global_avgpool9)
+            yield sklearn.utils.shuffle(X, y)
 
-    model = Model(input=input_img, output=output)
-    model.compile(loss='mse', optimizer='adam')
 
-    return model
+def main():
+    batch_size = 128
+
+    # Prepare the data
+    # train val split
+    df_drive_log_train, df_drive_log_val = \
+        train_test_split(df_drive_log, test_size=0.25, random_state=0)
+
+    # create the model (the model is defined in another script)
+    model = model_nvidia_like.get_model()
+    # generators
+    train_generator = generator(df_drive_log_train, batch_size=batch_size)
+    val_generator = generator(df_drive_log_val, batch_size=batch_size)
+    # callbacks
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    # Train the model
+    model.fit_generator(
+        generator=train_generator,
+        samples_per_epoch=df_drive_log_train.shape[0],
+        nb_epoch=10,
+        validation_data=val_generator,
+        nb_val_samples=df_drive_log_val.shape[0]
+    )
+
+    # Save the model
+    model.save('model.h5')
+    print('The model saved.')
+
+    K.clear_session()
+    gc.collect()
+
+
+if __name__ == '__main__':
+    main()
