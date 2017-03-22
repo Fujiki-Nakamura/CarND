@@ -95,5 +95,5 @@ I combined all the steps above and got images like below.
 Here's a [link to my video result](./project_video_output.mp4)
 
 ### Discussion
-- In lane detection, I could have tried some techniques making the most of the lane detected previously. I didn't have to find the starting points of window searching for each frame from scrach.
-- In my output video, the detected lane area is sometimes wobbly. I might be able to smoothen the output by some kind of averaging method.
+- Some frames in my output video still have sort of distorted lane areas. I might be able to solve this problem by averaging last several frames and determining the current lane lines.
+- My pipeline might fail if illumination varies. So, in order to make the pipeline more robust, I might have to find and create features for line detection which are independent of illumination.
